@@ -3,11 +3,15 @@ package com.codepath.apps.restclienttemplate;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
@@ -21,10 +25,11 @@ import okhttp3.Headers;
 public class ComposeActivity extends AppCompatActivity {
 
     public static final String TAG = "ComposeActivity";
-    public static final int MAX_TWEET_LENGTH = 140;
+    public static final int MAX_TWEET_LENGTH = 280;
 
     EditText etCompose;
     Button btnTweet;
+    TextView etValue;
 
     TwitterClient client;
 
@@ -37,6 +42,7 @@ public class ComposeActivity extends AppCompatActivity {
 
         etCompose = findViewById(R.id.etCompose);
         btnTweet = findViewById(R.id.btnTweet);
+        etValue = findViewById(R.id.etValue);
 
         // Set click listener on the button
         btnTweet.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +82,39 @@ public class ComposeActivity extends AppCompatActivity {
                         Log.e(TAG, "onFailure to publish tweet", throwable);
                     }
                 });
+            }
+        });
+
+        etCompose.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Fires right as the text is being changed (even supplies the range of text)
+                String text = etCompose.getText().toString();
+                int charLimit = text.length();
+                // If total characters exceeds 280
+                etValue.setText("" + charLimit + "/280");
+                if (charLimit > MAX_TWEET_LENGTH) {
+                    Toast.makeText(ComposeActivity.this, "Max character limit reached", Toast.LENGTH_LONG).show();
+                    // Makes text Red
+                    etValue.setTextColor(Color.RED);
+                    // Disables button when character limit is reached
+                    btnTweet.setEnabled(false);
+                } else {
+                    // makes text Black
+                    etValue.setTextColor(Color.BLACK);
+                    // Re-enables button
+                    btnTweet.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }
